@@ -49,13 +49,13 @@ int sequence(int active[], int arrival[], int burst[], int remaining[], int wt[]
 	for (j=0; j<=endtime; j++){
 		minTime = endtime;
 		minId = -1;
-		for (i=0; i<n; i++){		//Find the job with SRT
+		for (i=0; i<n; i++){
 			if (active[i] == 1 && j >= arrival[i] && minTime >= remaining[i]){
 				minTime = remaining[i];
 				minId = i;
 			}
 		}
-		if (minId == -1){		//All done or nothing is available for that second
+		if (minId == -1){
 			done = 1;
 			for (i=0; i<n; i++){
 				if (active[i]){
@@ -86,8 +86,8 @@ int sequence(int active[], int arrival[], int burst[], int remaining[], int wt[]
 			timeline[j]=minId;
 			remaining[minId]-=1;
 			if (remaining[minId] == 0) active[minId]=0; //Job done
-			for (i=0; i<n; i++){		//Waiting time for all other jobs increase
-				if (i != minId && active[i] && j >= arrival[i]){
+			for (i=0; i<n; i++){
+				if (active[i] && j >= arrival[i] && i != minId){
 					wt[i] += 1;
 				}
 			}

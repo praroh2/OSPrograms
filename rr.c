@@ -51,21 +51,21 @@ int sequence(int active[], int arrival[], int burst[], int remaining[], int wt[]
 	while (j<=endtime){
 		added=0;				//Flag to check if any job is available for that second
 		for (i=0; i<n; i++){
-			if (active[i] && j >= arrival[i]){		
+			if (active[i] && j >= arrival[i]){
 				added=1;
 				if (remaining[i] >= tq){
-					for (temp=0; temp<n; temp++){
+					for (temp=0; temp<n; temp++){	//Waiting time increases for all other jobs
 						if (temp != i && active[temp] && j >= arrival[temp]){
 							wt[temp] += tq;
 						}
 					}
-					for (temp=0; temp<tq; temp++){
+					for (temp=0; temp<tq; temp++){	//Add current job to Gantt chart
 						timeline[j]=i;
 						j++;
 					}
 					remaining[i]-=tq;
 				}
-				else{
+				else{			//If remaining time is less than time quantum
 					for (temp=0; temp<n; temp++){
 						if (temp != i && active[temp] && j >= arrival[temp]){
 							wt[temp] += remaining[i];
@@ -77,12 +77,12 @@ int sequence(int active[], int arrival[], int burst[], int remaining[], int wt[]
 					}
 					remaining[i] = 0;
 				}
-				if (remaining[i] == 0){
+				if (remaining[i] == 0){	//If job is over
 					active[i] = 0;
 				}
 			}
 		}
-		if(!added) timeline[j++]=-1;
+		if(!added) timeline[j++]=-1;		//If no job is available for that second
 		done = 1;
 		for (i=0; i<n; i++){
 			if (active[i]) done = 0;
