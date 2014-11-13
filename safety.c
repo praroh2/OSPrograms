@@ -49,12 +49,13 @@ void input(){
 			scanf("%d", &max[i][j]);
 	}
 	printf("Enter the available resources: ");
-	for (j=0; j<res; j++)
+	for (j=0; j<res; j++){
 		scanf("%d", &avail[j]);
+		work[j] = avail[j];
+	}
 
 	for (i=0; i<jobs; i++){
 		done[i] = 0;				//None of the jobs are done
-		work[i] = avail[i];
 		for (j=0; j<res; j++){			//Calculate need matrix
 			need[i][j] = max[i][j] - allo[i][j];
 		}
@@ -133,7 +134,45 @@ void doJob(int jobId){
 	done[jobId]=1;
 }
 
-void safety(){
+int resRequest(){
+	int j, jobId, req[size];
+	printf("Do you want to make a resource request? (1 - Yes): ");
+	scanf("%d",&j);
+	if (j != 1)
+		return 0;
+	printf("Enter the job that is requesting: ");
+	scanf("%d",&jobId);
+	printf("Enter the number of resources requested: ");
+	for (j=0; j<res; j++)
+		scanf("%d",&req[j]);
+	for (j=0; j<res; j++){
+		work[j] = avail[j];
+		if (need[jobId][j] < req[j]){
+			printf("Request is greater than need\n");
+			return 0;
+		}
+		if (work[j] < req[j]){
+			printf("Request is greater than available\n");
+			return 0;
+		}
+	}
+	for (j=0; j<jobs; j++)
+		done[j] = 0;
+	for (j=0; j<res; j++){
+		allo[jobId][j] += req[j];
+		need[jobId][j] -= req[j];
+		work[j] -= req[j];
+	}
+	if (safety()){
+		for (j=0; j<res; j++)
+			avail[j] -= req[j];
+		return 1;
+	}
+	return 0;
+}
+		
+
+int safety(){
 	int i, j, s=0, flag;
 	while (notOver()){	//Check if any job is left
 		flag=1;		//Flag to check if the system has enterred deadlock state
@@ -146,7 +185,7 @@ void safety(){
 		}
 		if (flag) {	//No change in the current iteration => deadlock
 			printf("\nNo safe sequence.\n");
-			exit(0);
+			return 0;
 		}
 	}
 	//All jobs done
@@ -154,15 +193,17 @@ void safety(){
 	for (i=0; i<jobs; i++)
 		printf("%d\t",sequence[i]);
 	printf("\n");
+	return 1;
 }
 
 void main(){
 	int i, j;
 	input();
-	output();
+	//output();
 	if (!verify()){
 		printf("Invalid input.\n");
 		exit(1);
 	}
-	safety();
+	if (safety())
+		while(resRequest());
 }

@@ -4,6 +4,11 @@
 
 int n, tq, endtime=0, done=0;
 
+int min(int x, int y){
+	if (x < y) return x;
+	return y;
+}
+
 void input(int active[], int arrival[], int burst[], int remaining[]){
 	int i;
 	printf("Enter the number of jobs: ");
@@ -52,31 +57,17 @@ int sequence(int active[], int arrival[], int burst[], int remaining[], int wt[]
 		added=0;				//Flag to check if any job is available for that second
 		for (i=0; i<n; i++){
 			if (active[i] && j >= arrival[i]){
-				added=1;
-				if (remaining[i] >= tq){
-					for (temp=0; temp<n; temp++){	//Waiting time increases for all other jobs
-						if (temp != i && active[temp] && j >= arrival[temp]){
-							wt[temp] += tq;
-						}
+				added=min(remaining[i], tq);
+				for (temp=0; temp<n; temp++){	//Waiting time increases for all other jobs
+					if (temp != i && active[temp] && j >= arrival[temp]){
+						wt[temp] += added;
 					}
-					for (temp=0; temp<tq; temp++){	//Add current job to Gantt chart
-						timeline[j]=i;
-						j++;
-					}
-					remaining[i]-=tq;
 				}
-				else{			//If remaining time is less than time quantum
-					for (temp=0; temp<n; temp++){
-						if (temp != i && active[temp] && j >= arrival[temp]){
-							wt[temp] += remaining[i];
-						}
-					}
-					for (temp=0; temp<remaining[i]; temp++){
-						timeline[j]=i;
-						j++;
-					}
-					remaining[i] = 0;
+				for (temp=0; temp<added; temp++){	//Add current job to Gantt chart
+					timeline[j]=i;
+					j++;
 				}
+				remaining[i]-=added;
 				if (remaining[i] == 0){	//If job is over
 					active[i] = 0;
 				}
